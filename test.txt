@@ -1,0 +1,112 @@
+def GWAS():
+    while True:
+        cases = int(input("Number of Cases: "))
+        if cases <100:
+            print("to small, needs to be a minimum of 100")
+            break
+        try:
+
+           #controls checking
+            controls = int(input("Number of Controls: "))
+            if controls <100:
+                print("to small, needs to be a minimum of 100")
+                break
+
+           #alpha checking
+            alpha = float(input("Significance Level Desired: "))
+            if alpha <0.000000000001:
+                print("to small, needs to be a minimum of 0.00000000001")
+                break
+            if alpha > 1:
+                print("to large, 1.0 is the max value")
+                break
+
+            #model checking and making sure it is unified variable for later
+            model = input("What is the Disease Model? Mult, Add, Dom, Rec: ")
+            if model.lower() not in ("mult", "add", "dom", "rec"):
+                print("Bad Model")
+                break
+            model.lower
+            M = model.capitalize()
+
+           #prev checking
+            prev = float(input("Prevalence: "))
+            if prev <0.0001:
+                print("to small 0.001 is the minimum value")
+                break
+            if prev > 1:
+                print("to large, 1.0 is the max value")
+                break
+
+           #DAF checking
+            DAF = float(input("Disease Allele Frequency: "))
+            if DAF < 0.0001:
+                print("to small 0.001 is the minimum value")
+                break
+            if DAF > 1:
+                print("to large, 1.0 is the max value")
+                break
+
+           #GRR checking
+            GRR = float(input("Genotype relative Risk: "))
+            if GRR < 1:
+                print("to small 1.0 is the minimum value")
+                break
+            if GRR > 10:
+                print("to large, 10 is the max value")
+                break
+
+            #equations for frequency aa,ab,bb
+            p = [DAF ** 2, 2 * (DAF) * (1 - DAF), (1 - DAF) ** 2]
+            aa_freq = p[0]
+            ab_freq = p[1]
+            bb_freq = p[2]
+
+            #equations based on model types
+            if M == "Mult":
+                f = [GRR * GRR, GRR, 1.0]
+            # eq 5
+            elif M == "Add":
+                f = [2.0 * GRR - 1.0, GRR, 1.0]
+
+            # eq 6
+            elif M == "Dom":
+                f = [GRR, GRR, 1.0]
+
+            # eq 7
+            elif M == "Rec":
+                f = [GRR, 1.0, 1.0]
+
+            # eq 8 probibilty of AA
+            aa_prob = float((f[0] * prev) / (f[0] * aa_freq + f[1] * ab_freq + f[2] * bb_freq))
+
+            # eq 9 probibility of AB
+            ab_prob = float((f[1] * prev) / (f[0] * aa_freq + f[1] * ab_freq + f[2] * bb_freq))
+
+            # eq 10 probibility of BB
+            bb_prob = float((f[2] * prev) / (f[0] * aa_freq + f[1] * ab_freq + f[2] * bb_freq))
+
+            # eq 11 expected disease allele frequency cases
+            casesDAF = float(((aa_prob * aa_freq) + (ab_prob * ab_freq * 0.5)) / prev)
+
+            # eq 12 expected disease allele frequency controls
+            controlsDAF = float(((1 - aa_prob) * aa_freq + (1.0 - ab_prob) * ab_freq * 0.5) / (1 - prev))
+
+        #general error term for anything if not in format requested
+        except ValueError:
+            print("error bad input")
+            break
+
+      #solutions will be printed
+        else:
+            print("\nResults")
+            print("Expected power for a one-stage study: x")
+            print("Expected Disease Allele Frequency")
+            print("\t Cases " + str(casesDAF))
+            print("\t Controls " + str(controlsDAF))
+            print("Probability of Disease")
+            print("\t Genotype A/A " + " frequency: " + str(p[0]) + " probibility: " + str(aa_prob))
+            print("\t Genotype A/B " + " frequency: " + str(p[1]) + " probibility: " + str(ab_prob))
+            print("\t Genotype B/B " + " frequency: " + str(p[2]) + " probibility: " + str(bb_prob))
+            break
+GWAS()
